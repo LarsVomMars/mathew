@@ -60,6 +60,9 @@ class Vector2:
         else:
             raise NotImplementedError()
 
+    def __str__(self):
+        return str({'x': self.x, 'y': self.y})
+
 
 class Vector3:
     def __init__(self, x: float, y: float, z: float = 0):
@@ -127,3 +130,6 @@ class Vector3:
             return self.x == other.x and self.y == other.y and self.z == other.z
         else:
             raise NotImplementedError()
+
+    def __str__(self):
+        return str({'x': self.x, 'y': self.y, 'z': self.z})

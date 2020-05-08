@@ -25,10 +25,13 @@ class Point2:
         else:
             raise NotImplementedError()
 
-    def difference_vector(self, point: Point2) -> Vector2:
+    def __str__(self):
+        return str({'x': self.x, 'y': self.y})
+
+    def difference_vector(self, point) -> Vector2:
         return Vector2(point.x - self.x, point.y - self.y)
 
-    def distance(self, point: Point2) -> float:
+    def distance(self, point) -> float:
         return abs(self.difference_vector(point))
 
 
@@ -59,8 +62,11 @@ class Point3:
         else:
             raise NotImplementedError()
 
-    def difference_vector(self, point: Point3) -> Vector3:
+    def __str__(self):
+        return str({'x': self.x, 'y': self.y, 'z': self.z})
+
+    def difference_vector(self, point) -> Vector3:
         return Vector3(point.x - self.x, point.y - self.y, point.z - self.z)
 
-    def distance(self, point: Point3) -> float:
+    def distance(self, point) -> float:
         return abs(self.difference_vector(point))
