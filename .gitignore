@@ -1,4 +1,5 @@
 /**/__pycache__/
-tests/
 *.egg-info/
 .idea/
+build/
+dist/
