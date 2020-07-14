@@ -5,9 +5,9 @@ long_description = open("README.md", "r").read()
 
 setup(
     name='mathew',
-    version='0.0.1',
-    description='My personal universal math lib',
-    url='https://github.com/larsvommars/mathlib',
+    version='0.0.2',
+    description='My personal math lib',
+    url='https://github.com/larsvommars/mathew',
     author='LarsVomMars',
     author_email='dev@kroenner.eu',
     long_description=long_description,
