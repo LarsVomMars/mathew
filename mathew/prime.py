@@ -14,12 +14,14 @@ def primegen(max_prime: int = None):
     """
     Yields primes to max_prime if defined
     """
-    yield 2
-    yield 3
-    yield 5
-    yield 7
-    yield 11
-    yield 13
+
+    yields = [2, 3, 5, 7, 11, 13]
+    for y in yields:
+        if max_prime is None or y < max_prime:
+            yield y
+        else:
+            return 
+
     pg = primegen()
     p = next(pg) and next(pg)
     q = p ** 2
