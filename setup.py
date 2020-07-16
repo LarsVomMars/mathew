@@ -5,7 +5,7 @@ long_description = open("README.md", "r").read()
 
 setup(
     name='mathew',
-    version='0.0.2',
+    version='0.0.3',
     description='My personal math lib',
     url='https://github.com/larsvommars/mathew',
     author='LarsVomMars',

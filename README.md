@@ -1,2 +1,2 @@
 # mathelib
-An universal math lib for python
+A small math lib for python
