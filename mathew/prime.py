@@ -20,7 +20,7 @@ def primegen(max_prime: int = None):
         if max_prime is None or y < max_prime:
             yield y
         else:
-            return 
+            return
 
     pg = primegen()
     p = next(pg) and next(pg)
@@ -52,3 +52,23 @@ def primegen(max_prime: int = None):
             sieve[nxt] = step
 
         n += 2
+
+
+def prime_factors(n: int) -> list:
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+
+    return factors
+
+
+def distinct_prime_factors(n: int) -> list:
+    factors = prime_factors(n)
+    return list(dict.fromkeys(factors))
