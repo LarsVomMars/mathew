@@ -7,7 +7,7 @@ def test_primegen():
 
 def test_is_prime():
     assert prime.is_prime(4567)
-    assert prime.is_prime(4568)
+    assert not prime.is_prime(4568)
     assert prime.is_prime(1277)
 
 

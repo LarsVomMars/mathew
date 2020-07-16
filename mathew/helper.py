@@ -25,6 +25,15 @@ def fibonacci(n: complex) -> complex:
     return (pow(GOLDEN_RATIO, n) - pow(-GOLDEN_RATIO, -n)) / (sqrt(5))
 
 
+def fibonacci_limit(cap: int) -> list:
+    i = 0
+    fib_val = fibonacci(i)
+    while fib_val <= cap:
+        yield fib_val
+        i += 1
+        fib_val = fibonacci(i)
+
+
 def factorial(n: int) -> int:
     if n < 0:
         raise ValueError("n must be greater then or equal to 0")

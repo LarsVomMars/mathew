@@ -1,3 +1,6 @@
+from itertools import islice
+
+
 def is_prime(n: int) -> bool:
     """
     Checks if n is a prime number
@@ -52,6 +55,20 @@ def primegen(max_prime: int = None):
             sieve[nxt] = step
 
         n += 2
+
+
+def nth_prime(n: int) -> int:
+    return next(islice(primegen(), n, n + 1))
+
+
+def largest_prime_factor(n: int) -> int:
+    i = 2
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+    return n
 
 
 def prime_factors(n: int) -> list:
