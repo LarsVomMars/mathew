@@ -1,3 +1,7 @@
+from math import sqrt
+from .constants import GOLDEN_RATIO
+
+
 def gcd(a: int, b: int) -> int:
     """
     Calculate greatest common divisor of a and b
@@ -12,3 +16,22 @@ def lcm(a: int, b: int) -> int:
     Calculate the lowest common multiply of a and b
     """
     return int(abs(a * b) / gcd(a, b))  # Will always be of type int
+
+
+def fibonacci(n: complex) -> complex:
+    """
+    Calculating fibonacci numbers using the binet formula
+    """
+    return (pow(GOLDEN_RATIO, n) - pow(-GOLDEN_RATIO, -n)) / (sqrt(5))
+
+
+def factorial(n: int) -> int:
+    if n < 0:
+        raise ValueError("n must be greater then or equal to 0")
+    elif n == 0:
+        return 0
+    else:
+        f = 1
+        for i in range(2, n+1):
+            f *= i
+        return f
