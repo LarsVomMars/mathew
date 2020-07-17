@@ -58,10 +58,16 @@ def primegen(max_prime: int = None):
 
 
 def nth_prime(n: int) -> int:
+    """
+    Returns the nth prime
+    """
     return next(islice(primegen(), n, n + 1))
 
 
 def largest_prime_factor(n: int) -> int:
+    """
+    Returns the largest prime factor of n
+    """
     i = 2
     while i * i <= n:
         if n % i:
@@ -72,6 +78,9 @@ def largest_prime_factor(n: int) -> int:
 
 
 def prime_factors(n: int) -> list:
+    """
+    Returns all prime factors of n
+    """
     i = 2
     factors = []
     while i * i <= n:
@@ -87,5 +96,8 @@ def prime_factors(n: int) -> list:
 
 
 def distinct_prime_factors(n: int) -> list:
+    """
+    Returns all distinct prime factors of n
+    """
     factors = prime_factors(n)
     return list(dict.fromkeys(factors))

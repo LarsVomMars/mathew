@@ -26,6 +26,9 @@ def fibonacci(n: complex) -> complex:
 
 
 def fibonacci_limit(cap: int) -> list:
+    """
+    Yields all fibonacci numbers up to a certain limit
+    """
     i = 0
     fib_val = fibonacci(i)
     while fib_val <= cap:
@@ -35,6 +38,9 @@ def fibonacci_limit(cap: int) -> list:
 
 
 def factorial(n: int) -> int:
+    """
+    Returns the factorial of n
+    """
     if n < 0:
         raise ValueError("n must be greater then or equal to 0")
     elif n == 0:

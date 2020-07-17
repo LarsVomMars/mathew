@@ -32,12 +32,18 @@ class Point:
         return str({'x': self.x, 'y': self.y, 'z': self.z})
 
     def difference_vector(self, point):
+        """
+        Returns the vector between self and another point
+        """
         if isinstance(point, Point):
             return Vector(point.x - self.x, point.y - self.y, point.z - self.z)
         else:
             raise NotImplementedError()
 
     def distance(self, point) -> float:
+        """
+        Returns the length of the vector between self and another point
+        """
         if isinstance(point, Point):
             return abs(self.difference_vector(point))
         else:
@@ -117,6 +123,9 @@ class Vector:
         return str({'x': self.x, 'y': self.y, 'z': self.z})
 
     def cross(self, v3):
+        """
+        Calculates the cross product of self and another vector
+        """
         if isinstance(v3, Vector):
             x = self.y * v3.z - self.z * v3.y
             y = self.z * v3.x - self.x * v3.z
@@ -126,6 +135,9 @@ class Vector:
             raise NotImplementedError()
 
     def dot(self, v3) -> float:
+        """
+        Calculates the dot product of self and another vector
+        """
         if isinstance(v3, Vector):
             x = self.x * v3.x
             y = self.y * v3.y
@@ -135,6 +147,9 @@ class Vector:
             raise NotImplementedError()
 
     def angle(self, v3) -> float:
+        """
+        Calculates the angle between self and another vector
+        """
         if isinstance(v3, Vector):
             return degrees(acos(self.dot(v3) / (abs(self) * abs(v3))))
         else:
@@ -142,6 +157,9 @@ class Vector:
 
     @staticmethod
     def from_points(p1, p2):
+        """
+        Creates the vector between to points
+        """
         if isinstance(p1, Point) and isinstance(p2, Point):
             return p1.difference_vector(p2)
         else:
