@@ -1,16 +1,17 @@
 from itertools import islice
 
-
+def factor(num):
+    """
+    find a number factor
+    """
+    result_list = [i for i in range(num+1) if num%i == 0]
+    return result_list
 def is_prime(n: int) -> bool:
     """
     Checks if n is a prime number
     """
-    if n < 1:
-        return False
-    for i in range(2, n // 2):
-        if n % i == 0:
-            return False
-    return True
+    result = True if len(factor(n)) == 2 else False
+    return result
 
 
 def primegen(max_prime: int = None):
