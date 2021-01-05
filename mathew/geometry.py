@@ -22,6 +22,21 @@ class Point:
         else:
             raise NotImplementedError()
 
+    def __sub__(self, others):
+        if isinstance(others, Vector):
+            return Point(self.x - others.x, self.y - others.y, self.z - others.z)
+        else:
+            raise NotImplementedError()
+
+    def __isub__(self, others):
+        if isinstance(others, Vector):
+            self.x -= others.x
+            self.y -= others.y
+            self.z -= others.z
+            return self
+        else:
+            raise NotImplementedError()
+
     def __eq__(self, others) -> bool:
         if isinstance(others, Point):
             return self.x == others.x and self.y == others.y and self.z == others.z
@@ -46,6 +61,12 @@ class Point:
         """
         if isinstance(point, Point):
             return abs(self.difference_vector(point))
+        else:
+            raise NotImplementedError()
+
+    def on_line(self, line) -> bool:
+        if isinstance(line, Line):
+            return line.has(self)
         else:
             raise NotImplementedError()
 
@@ -164,3 +185,32 @@ class Vector:
             return p1.difference_vector(p2)
         else:
             raise NotImplementedError()
+
+    @staticmethod
+    def from_origin(p):
+        o = Point(0, 0, 0)
+        return Vector.from_points(o, p)
+
+
+class Line:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def has(self, point) -> bool:
+        if isinstance(point, Point):
+            r1 = (point.x - self.a.x) / self.b.x
+            r2 = (point.y - self.a.y) / self.b.y
+            r3 = (point.z - self.a.z) / self.b.z
+            return r1 == r2 == r3
+        else:
+            raise NotImplementedError()
+
+    def value(self, r: float):
+        return self.a + r * self.b
+
+    @staticmethod
+    def from_points(p1, p2):
+        v1 = p1
+        v2 = Vector.from_points(p1, p2)
+        return Line(v1, v2)

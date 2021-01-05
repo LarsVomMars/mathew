@@ -1,4 +1,5 @@
 from itertools import islice
+from typing import Generator, Optional
 
 
 def is_prime(n: int) -> bool:
@@ -13,7 +14,7 @@ def is_prime(n: int) -> bool:
     return True
 
 
-def primegen(max_prime: int = None):
+def primegen(max_prime: int = None) -> Generator[int, None, Optional[int]]:
     """
     Yields primes to max_prime if defined
     """
@@ -36,6 +37,8 @@ def primegen(max_prime: int = None):
             if n < q:
                 if max_prime is None or n < max_prime:
                     yield n
+                elif n == max_prime:
+                    return n
                 else:
                     return
             else:
@@ -95,9 +98,9 @@ def prime_factors(n: int) -> list:
     return factors
 
 
-def distinct_prime_factors(n: int) -> list:
+def distinct_prime_factors(n: int) -> set:
     """
     Returns all distinct prime factors of n
     """
     factors = prime_factors(n)
-    return list(dict.fromkeys(factors))
+    return set(factors)
