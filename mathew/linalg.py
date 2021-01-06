@@ -1,6 +1,6 @@
 from enum import IntEnum
 from math import sqrt, acos, degrees
-from typing import Union
+from typing import Union, Tuple
 
 
 class Positions(IntEnum):
@@ -257,7 +257,7 @@ class Line:
         """
         return self.a + r * self.b
 
-    def intersects(self, line) -> Union[Positions, tuple[Positions, Point]]:
+    def intersects(self, line) -> Union[Positions, Tuple[Positions, Point]]:
         """
         Checks if lines intersect and returns PoI
         """
