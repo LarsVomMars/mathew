@@ -1,4 +1,14 @@
+from enum import IntEnum
 from math import sqrt, acos, degrees
+from typing import Union
+
+
+class Positions(IntEnum):
+    INTERSECT = 0
+    TRUE_PARALLEL = 1
+    CO_LINEAR = CONGRUENT = 2
+    SKEW = 3
+    NON_INTERSECT = 4
 
 
 class Point:
@@ -43,8 +53,11 @@ class Point:
         else:
             raise NotImplementedError()
 
-    def __str__(self) -> str:
-        return str({'x': self.x, 'y': self.y, 'z': self.z})
+    def __str__(self):
+        return f"({self.x}|{self.y}|{self.z})"
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y}, {self.z})"
 
     def difference_vector(self, point):
         """
@@ -141,7 +154,10 @@ class Vector:
             raise NotImplementedError()
 
     def __str__(self):
-        return str({'x': self.x, 'y': self.y, 'z': self.z})
+        return f"({self.x}|{self.y}|{self.z})"  # Hmm
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y}, {self.z})"
 
     def cross(self, v3):
         """
@@ -176,10 +192,24 @@ class Vector:
         else:
             raise NotImplementedError()
 
-    @staticmethod
-    def from_points(p1, p2):
+    def co_linear(self, vector):
         """
-        Creates the vector between to points
+        Checks if vectors are co-linear (multiples of each other)
+        """
+        if isinstance(vector, Vector):
+            if vector.x == 0 or vector.y == 0 or vector.z == 0:
+                return False
+            r1 = self.x / vector.x
+            r2 = self.y / vector.y
+            r3 = self.z / vector.z
+            return r1 == r2 == r3
+        else:
+            raise NotImplementedError()
+
+    @staticmethod
+    def from_points(p1: Point, p2: Point):
+        """
+        Creates the vector between two points
         """
         if isinstance(p1, Point) and isinstance(p2, Point):
             return p1.difference_vector(p2)
@@ -187,17 +217,32 @@ class Vector:
             raise NotImplementedError()
 
     @staticmethod
-    def from_origin(p):
-        o = Point(0, 0, 0)
-        return Vector.from_points(o, p)
+    def from_origin(p: Point):
+        """
+        Creates the vector between the origin and p
+        """
+        if isinstance(p, Point):
+            o = Point(0, 0, 0)
+            return Vector.from_points(o, p)
+        else:
+            raise NotImplementedError()
 
 
 class Line:
-    def __init__(self, a, b):
+    def __init__(self, a: Point, b: Vector):
         self.a = a
         self.b = b
 
+    def __str__(self):
+        return f"{self.a} + r * {self.b}"
+
+    def __repr__(self):
+        return f"Line({repr(self.a)}, {repr(self.b)})"
+
     def has(self, point) -> bool:
+        """
+        Checks if point is on the line
+        """
         if isinstance(point, Point):
             r1 = (point.x - self.a.x) / self.b.x
             r2 = (point.y - self.a.y) / self.b.y
@@ -206,11 +251,43 @@ class Line:
         else:
             raise NotImplementedError()
 
-    def value(self, r: float):
+    def value(self, r: float) -> Point:
+        """
+        Returns point for a certain value of r
+        """
         return self.a + r * self.b
 
+    def intersects(self, line) -> Union[Positions, tuple[Positions, Point]]:
+        """
+        Checks if lines intersect and returns PoI
+        """
+        if isinstance(line, Line):
+            if self.b.co_linear(line.b):
+                if self.has(line.a):
+                    return Positions.CONGRUENT
+                else:
+                    return Positions.TRUE_PARALLEL
+            else:
+                # Too lazy to solve SoLE
+                r = (self.a.y - line.a.y + ((line.a.x - self.a.x) / self.b.x) * self.b.y) / (
+                        line.b.y - (line.b.x * self.b.y / self.b.x))
+                t = (line.a.x - self.a.x + r * line.b.x) / self.b.x
+
+                if self.a.z + t * self.b.z == line.a.z + r * line.b.z:
+                    return Positions.INTERSECT, self.a + t * self.b
+                else:
+                    return Positions.SKEW
+        else:
+            raise NotImplementedError()
+
     @staticmethod
-    def from_points(p1, p2):
-        v1 = p1
-        v2 = Vector.from_points(p1, p2)
-        return Line(v1, v2)
+    def from_points(p1: Point, p2: Point):
+        """
+        Creates the line between two points
+        """
+        if isinstance(p1, Point) and isinstance(p2, Point):
+            v1 = p1
+            v2 = Vector.from_points(p1, p2)
+            return Line(v1, v2)
+        else:
+            raise NotImplementedError()

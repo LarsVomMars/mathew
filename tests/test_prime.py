@@ -18,6 +18,6 @@ def test_primefac():
 
 
 def test_distinct_primefac():
-    assert prime.distinct_prime_factors(12) == [2, 3]
-    assert prime.distinct_prime_factors(128) == [2]
-    assert prime.distinct_prime_factors(45642156465) == [3, 5, 3042810431]
+    assert prime.distinct_prime_factors(12) == {2, 3}
+    assert prime.distinct_prime_factors(128) == {2}
+    assert prime.distinct_prime_factors(45642156465) == {3, 5, 3042810431}
