@@ -1,14 +1,6 @@
 import pytest
+
 from mathew import helper
-
-
-def test_gcd():
-    assert helper.gcd(3, 6) == 3
-    assert helper.gcd(7, 5) == 1
-
-
-def test_lcm():
-    assert helper.lcm(5, 9) == 45
 
 
 def test_fib():

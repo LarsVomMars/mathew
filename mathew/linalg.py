@@ -1,6 +1,6 @@
 from enum import IntEnum
 from math import sqrt, acos, degrees
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 
 
 class Positions(IntEnum):
@@ -9,6 +9,7 @@ class Positions(IntEnum):
     CO_LINEAR = CONGRUENT = 2
     SKEW = 3
     NON_INTERSECT = 4
+    IN_PLANE = 5
 
 
 class Point:
@@ -20,6 +21,8 @@ class Point:
     def __add__(self, others):
         if isinstance(others, Vector):
             return Point(self.x + others.x, self.y + others.y, self.z + others.z)
+        elif isinstance(others, Point):
+            return Vector(self.x + others.x, self.y + others.y, self.z + others.z)
         else:
             raise NotImplementedError()
 
@@ -35,6 +38,8 @@ class Point:
     def __sub__(self, others):
         if isinstance(others, Vector):
             return Point(self.x - others.x, self.y - others.y, self.z - others.z)
+        elif isinstance(others, Point):
+            return Vector(self.x - others.x, self.y - others.y, self.z - others.z)
         else:
             raise NotImplementedError()
 
@@ -90,8 +95,11 @@ class Vector:
         self.y = y
         self.z = z
 
-    def __abs__(self) -> float:
+    def __abs__(self):
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+
+    def __len__(self):
+        return self.__abs__()
 
     def __add__(self, other):
         if isinstance(other, Vector):
@@ -126,12 +134,16 @@ class Vector:
     def __mul__(self, other):
         if isinstance(other, (int, float)):
             return Vector(self.x * other, self.y * other, self.z * other)
+        elif isinstance(other, Vector):
+            return self.dot(other)
         else:
             raise NotImplementedError()
 
     def __rmul__(self, other):
         if isinstance(other, (int, float)):
             return Vector(self.x * other, self.y * other, self.z * other)
+        elif isinstance(other, Vector):
+            return self.dot(other)
         else:
             raise NotImplementedError()
 
@@ -228,25 +240,51 @@ class Vector:
             raise NotImplementedError()
 
 
+class Matrix:
+    def __init__(self, matrix: List[List[float]]):
+        self.m = matrix
+        if any(len(matrix[i]) != len(matrix[i - 1]) for i in range(1, len(matrix))):
+            raise TypeError("All rows must me the same length")
+
+    def __getitem__(self, item):
+        return self.get_row(item)
+
+    def size(self) -> Tuple[int, int]:
+        return len(self.m), len(self.m[0])
+
+    def arith_add_rows(self, row: int, add: int, mul: float = 1):
+        add_row = self.m[add]
+        base_row = self.m[row]
+        for i in range(len(add_row)):
+            add_row[i] += base_row[i] * mul
+        self.m[add] = add_row
+
+    def get_row(self, row: int) -> List[float]:
+        return self.m[row]
+
+    def get_col(self, col: int) -> List[float]:
+        return [row[col] for row in self.m]
+
+
 class Line:
     def __init__(self, a: Point, b: Vector):
-        self.a = a
-        self.b = b
+        self.p = a
+        self.v = b
 
     def __str__(self):
-        return f"{self.a} + r * {self.b}"
+        return f"{self.p} + r * {self.v}"
 
     def __repr__(self):
-        return f"Line({repr(self.a)}, {repr(self.b)})"
+        return f"Line({repr(self.p)}, {repr(self.v)})"
 
     def has(self, point) -> bool:
         """
         Checks if point is on the line
         """
         if isinstance(point, Point):
-            r1 = (point.x - self.a.x) / self.b.x
-            r2 = (point.y - self.a.y) / self.b.y
-            r3 = (point.z - self.a.z) / self.b.z
+            r1 = (point.x - self.p.x) / self.v.x
+            r2 = (point.y - self.p.y) / self.v.y
+            r3 = (point.z - self.p.z) / self.v.z
             return r1 == r2 == r3
         else:
             raise NotImplementedError()
@@ -255,28 +293,41 @@ class Line:
         """
         Returns point for a certain value of r
         """
-        return self.a + r * self.b
+        return self.p + r * self.v
 
-    def intersects(self, line) -> Union[Positions, Tuple[Positions, Point]]:
+    def intersects(self, line) -> Union[Positions, Tuple[Positions, Union[Point, float]]]:
         """
-        Checks if lines intersect and returns PoI
+        Checks if lines intersect and returns PoI or the minimal distance between the lines
         """
         if isinstance(line, Line):
-            if self.b.co_linear(line.b):
-                if self.has(line.a):
+            if self.v.co_linear(line.v):
+                if self.has(line.p):
                     return Positions.CONGRUENT
                 else:
-                    return Positions.TRUE_PARALLEL
+                    t = - line.v.dot(line.p - self.p) / line.v.dot(line.v)
+                    p = line.value(t)
+                    return Positions.TRUE_PARALLEL, self.p.distance(p)
             else:
                 # Too lazy to solve SoLE
-                r = (self.a.y - line.a.y + ((line.a.x - self.a.x) / self.b.x) * self.b.y) / (
-                        line.b.y - (line.b.x * self.b.y / self.b.x))
-                t = (line.a.x - self.a.x + r * line.b.x) / self.b.x
+                r = (self.p.y - line.p.y + ((line.p.x - self.p.x) / self.v.x) * self.v.y) / (
+                        line.v.y - (line.v.x * self.v.y / self.v.x))
+                t = (line.p.x - self.p.x + r * line.v.x) / self.v.x
 
-                if self.a.z + t * self.b.z == line.a.z + r * line.b.z:
-                    return Positions.INTERSECT, self.a + t * self.b
+                if self.p.z + t * self.v.z == line.p.z + r * line.v.z:
+                    return Positions.INTERSECT, self.p + t * self.v
                 else:
-                    return Positions.SKEW
+                    n = self.v.cross(line.v)
+                    dist = (n.dot(line.p - self.p)) / abs(n)
+                    return Positions.SKEW, abs(dist)
+        else:
+            raise NotImplementedError()
+
+    def angle(self, line):
+        """
+        Computes the angle between two lines
+        """
+        if isinstance(line, Line):
+            return acos(abs(self.v * line.v) / (abs(self.v) * abs(line.v)))
         else:
             raise NotImplementedError()
 
@@ -286,8 +337,84 @@ class Line:
         Creates the line between two points
         """
         if isinstance(p1, Point) and isinstance(p2, Point):
-            v1 = p1
             v2 = Vector.from_points(p1, p2)
-            return Line(v1, v2)
+            return Line(p1, v2)
         else:
             raise NotImplementedError()
+
+
+class Plane:
+    def __init__(self, a: float, b: float, c: float, d: float):
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+
+    def has_point(self, p: Point):
+        return self.a * p.x + self.b * p.y + self.c * p.z == self.d
+
+    def intersects_line(self, line: Line) -> Union[Positions, Tuple[Positions, Point]]:
+        v = Vector(self.a, self.b, self.c)
+        denom = v.dot(line.v)
+        # TODO: Check if in plane
+        if denom != 0:
+            r = (self.d - (v.dot(line.p))) / denom
+            return Positions.INTERSECT, line.p + r * line.v
+        else:
+            return Positions.TRUE_PARALLEL
+
+    def intersects_plane(self, plane):
+        pass
+
+    @staticmethod
+    def from_points(p1: Point, p2: Point, p3: Point):
+        """
+        Creates a plane from the three points
+        Converts from parametric to cartesian
+        """
+        if isinstance(p1, Point) and isinstance(p2, Point) and isinstance(p3, Point):
+            v1 = Vector.from_origin(p1)
+            v2 = Vector.from_points(p1, p2)
+            v3 = Vector.from_points(p1, p3)
+            n = v2.cross(v3)
+            d = n.dot(v1)
+            return Plane(n.x, n.y, n.z, d)
+        else:
+            raise NotImplementedError()
+
+    @staticmethod
+    def from_normal(p: Point, n: Vector):
+        if isinstance(p, Point) and isinstance(n, Vector):
+            v = Vector.from_origin(p)
+            d = n.dot(v)
+            return Plane(n.x, n.y, n.z, d)
+        else:
+            raise NotImplementedError()
+
+
+def solve(eq: Matrix, res: List[float]) -> List[float]:
+    """
+    Inefficient solver for systems of linear equations using gaussian elimination
+    """
+    rows, cols = eq.size()
+
+    assert (rows == len(res)) and "Sizes should be the same"
+    assert (rows == cols) and "Matrix should be a square matrix"
+
+    for i in range(rows - 1):
+        row = eq.get_row(i)
+        for j in range(i + 1, rows):
+            mul = -row[j] / row[i]
+            eq.arith_add_rows(i, j, mul)
+            res[j] += mul * res[i]
+
+    solved = []
+    for i in range(rows - 1, -1, -1):
+        r = res[i]
+        for ci in range(cols):
+            if len(solved) > ci:
+                r -= eq[i][cols - ci - 1] * solved[ci]
+            else:
+                solved.append(r / eq[i][cols - ci - 1])
+                break
+    return solved[::-1]

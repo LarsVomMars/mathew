@@ -10,7 +10,13 @@ def test_line():
     assert l1.has(p1)
     assert not l1.has(p2)
     assert l1.intersects(l2) == l2.intersects(l1) == (Positions.INTERSECT, Point(-1, -1, -1))
-    assert l1.intersects(l3) == l3.intersects(l1) == Positions.SKEW
+    assert l1.intersects(l3) == l3.intersects(l1) == (Positions.SKEW, 0.2)
+    p3 = Point(1, 0, 0)
+    p4 = Point(3, 2, 6)
+    v1 = Vector(2, 1, 1)
+    l4 = Line(p3, v1)
+    l5 = Line(p4, v1)
+    assert l4.intersects(l5)
 
 
 def test_vector():
@@ -28,3 +34,14 @@ def test_point():
     v1 = Vector(2, 2, 2)
     assert p1 + v1 == p2
     assert not p1 == p2
+
+
+def test_matrix():
+    m = Matrix([
+        [1, 2, 3],
+        [2, 3, 4],
+        [3, 4, 6],
+    ])
+    res = [4, 5, 6]
+    facs = solve(m, res)
+    assert facs == [-2, 3, 0]
