@@ -95,6 +95,9 @@ def prime_factors(n: int) -> list:
     if n > 1:
         factors.append(n)
 
+    if len(factors) == 1 and factors[0] == n:
+        raise ValueError("Number to be factored should not be a prime")
+
     return factors
 
 

@@ -1,3 +1,5 @@
+import pytest
+
 from mathew import prime
 
 
@@ -13,8 +15,9 @@ def test_is_prime():
 
 def test_primefac():
     assert prime.prime_factors(12) == [2, 2, 3]
-    assert prime.prime_factors(1277) == [1277]
     assert prime.prime_factors(128) == [2, 2, 2, 2, 2, 2, 2]
+    with pytest.raises(ValueError):
+        prime.prime_factors(1277) == [1277]
 
 
 def test_distinct_primefac():
