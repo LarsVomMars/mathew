@@ -218,6 +218,12 @@ class Vector:
         else:
             raise NotImplementedError()
 
+    def normalize(self):
+        self *= 1 / abs(self)
+
+    def get_normalized(self):
+        return self * 1 / abs(self)
+
     @staticmethod
     def from_points(p1: Point, p2: Point):
         """
@@ -242,28 +248,119 @@ class Vector:
 
 class Matrix:
     def __init__(self, matrix: List[List[float]]):
-        self.m = matrix
+        self.__m = matrix
         if any(len(matrix[i]) != len(matrix[i - 1]) for i in range(1, len(matrix))):
             raise TypeError("All rows must me the same length")
+
+        self.size = (len(self.__m), len(self.__m[0]))
+
+    def __eq__(self, others):
+        if isinstance(others, Matrix):
+            return self.size == others.size and self.__m == others._Matrix__m
+        else:
+            return NotImplementedError()
+
+    def __str__(self):
+        return str(self.__m)
 
     def __getitem__(self, item):
         return self.get_row(item)
 
-    def size(self) -> Tuple[int, int]:
-        return len(self.m), len(self.m[0])
+    def __add__(self, other):
+        if isinstance(other, Matrix):
+            if self.size != other.size:
+                raise TypeError("Must be of same size")
+            else:
+                nm = []
+                for i in self.size[0]:
+                    nm.append(sum(self.__m[i], other[i]))
+                return Matrix(nm)
+        else:
+            raise NotImplementedError()
+
+    def __iadd__(self, other):
+        if isinstance(other, Matrix):
+            if self.size != other.size:
+                raise TypeError("Must be of the same size")
+            for i in self.size[0]:
+                self.__m[i] = sum(self.__m[i], other[i])
+            return self
+        else:
+            raise NotImplementedError()
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            m = []
+            for row in self.__m:
+                m.append([other * col for col in row])
+            return Matrix(m)
+        elif isinstance(other, Matrix):
+            pass
+        else:
+            raise NotImplementedError()
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __imul__(self, other):
+        if isinstance(other, (int, float)):
+            for row in self.__m:
+                for e in row:
+                    e *= other
+        elif isinstance(other, Matrix):
+            if self.size[0] == other.size[1]:
+                pass
+            else:
+                raise ValueError(
+                    "Matrix must have the same number of columns as the others rows")
+        else:
+            raise NotImplementedError()
+
+    def is_square(self):
+        return self.size[0] == self.size[1]
 
     def arith_add_rows(self, row: int, add: int, mul: float = 1):
-        add_row = self.m[add]
-        base_row = self.m[row]
+        add_row = self.__m[add]
+        base_row = self.__m[row]
         for i in range(len(add_row)):
             add_row[i] += base_row[i] * mul
-        self.m[add] = add_row
+        self.__m[add] = add_row
 
     def get_row(self, row: int) -> List[float]:
-        return self.m[row]
+        return self.__m[row]
 
     def get_col(self, col: int) -> List[float]:
-        return [row[col] for row in self.m]
+        return [row[col] for row in self.__m]
+
+    def transpose(self):
+        m = [self.get_col(i) for i in range(self.size[1])]
+        self.__m = m
+
+    def get_transposed(self):
+        m = [self.get_col(i) for i in range(self.size[1])]
+        return Matrix(m)
+
+    def determinant(self):
+        assert self.is_square() and "Matrix must be a square matrix"
+
+        def minor(m, i):
+            nm = []
+            for row in m[1:]:
+                r = list(row)
+                del r[i]
+                nm.append(r)
+            return Matrix(nm)
+
+        s = 0
+        if self.size == (2, 2):
+            s = self.__m[0][0] * self.__m[1][1] - \
+                self.__m[0][1] * self.__m[1][0]
+        else:
+            for i in range(self.size[1]):
+                m = minor(self.__m, i)
+                s += pow(-1, i + 2) * self.__m[0][i] * m.determinant()
+
+        return s
 
 
 class Line:
@@ -310,7 +407,7 @@ class Line:
             else:
                 # Too lazy to solve SoLE
                 r = (self.p.y - line.p.y + ((line.p.x - self.p.x) / self.v.x) * self.v.y) / (
-                        line.v.y - (line.v.x * self.v.y / self.v.x))
+                    line.v.y - (line.v.x * self.v.y / self.v.x))
                 t = (line.p.x - self.p.x + r * line.v.x) / self.v.x
 
                 if self.p.z + t * self.v.z == line.p.z + r * line.v.z:
@@ -396,10 +493,10 @@ def solve(eq: Matrix, res: List[float]) -> List[float]:
     """
     Inefficient solver for systems of linear equations using gaussian elimination
     """
-    rows, cols = eq.size()
+    rows, cols = eq.size
 
     assert (rows == len(res)) and "Sizes should be the same"
-    assert (rows == cols) and "Matrix should be a square matrix"
+    assert (eq.is_square()) and "Matrix should be a square matrix"
 
     for i in range(rows - 1):
         row = eq.get_row(i)

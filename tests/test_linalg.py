@@ -9,7 +9,8 @@ def test_line():
     l3 = Line(Point(0, 0, 0), Vector(1, 0, 0))
     assert l1.has(p1)
     assert not l1.has(p2)
-    assert l1.intersects(l2) == l2.intersects(l1) == (Positions.INTERSECT, Point(-1, -1, -1))
+    assert l1.intersects(l2) == l2.intersects(l1) == (
+        Positions.INTERSECT, Point(-1, -1, -1))
     assert l1.intersects(l3) == l3.intersects(l1) == (Positions.SKEW, 0.2)
     p3 = Point(1, 0, 0)
     p4 = Point(3, 2, 6)
@@ -42,6 +43,31 @@ def test_matrix():
         [2, 3, 4],
         [3, 4, 6],
     ])
+    m2 = Matrix([
+        [1, 2, 3],
+        [4, 5, 6]
+    ])
+    m3 = Matrix([
+        [1, 4],
+        [2, 5],
+        [3, 6]
+    ])
+    m4 = Matrix([
+        [2, 4, 6],
+        [8, 10, 12]
+    ])
+    m5 = Matrix([[1, 2], [3, 4]])
+    m6 = Matrix([
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+    ])
+
     res = [4, 5, 6]
     facs = solve(m, res)
     assert facs == [-2, 3, 0]
+    assert m2.get_transposed() == m3
+    assert m2 * 2 == m4
+    assert m5.determinant() == -2
+    assert m.determinant() == -1
+    assert m6.determinant() == 0
